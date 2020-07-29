@@ -1,0 +1,31 @@
+{
+  "name": "serenta-api",
+  "version": "1.0.0",
+  "description": "Serenta api",
+  "main": "./src/app/server.js",
+  "scripts": {
+    "start": "node ./src/app/server.js",
+    "dev": "nodemon ./src/app/server.js",
+    "migrate-test": "postgrator --config ./test-migration.js",
+    "migrate-prod": "postgrator --config ./prod/migration.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "helmet": "^3.22.0",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.21.0",
+    "morgan": "^1.10.0",
+    "pg": "^7.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4",
+    "postgrator-cli": "^3.3.0"
+  }
+}
