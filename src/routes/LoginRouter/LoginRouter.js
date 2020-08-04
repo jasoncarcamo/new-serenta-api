@@ -29,7 +29,7 @@ LoginRouter
         UserService.getUser(req.app.get("db"), user.email)
             .then( dbUser => {
                 if(!dbUser){
-                    console.lofg(dbUser)
+                    console.log(dbUser)
                     return res.status(400).json({
                         error: `${user.email} is not registered.`
                     });
