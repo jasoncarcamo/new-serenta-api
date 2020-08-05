@@ -5,10 +5,16 @@ const {requireAuth} = require("../../middleware/jwtAuth");
 
 LivingSpaceRouter
     .route("/living-space")
+    .all(requireAuth)
     .get((req, res) => {
-
+        LivingSpaceService.getAllUserSpaces(req.app.get("db"), req.user.id)
+            .then( userAds => {
+                return res.status(200).json({
+                    userAds
+                });
+            });
     })
-    .post(requireAuth, (req, res) => {
+    .post((req, res) => {
         const {
             street_address,
             apt_num,
@@ -79,17 +85,21 @@ LivingSpaceRouter
     })
 
 LivingSpaceRouter
+    .route("/living-spaces")
+    .get((req, res)=>{
+        LivingSpaceService.getAllSpaces(req.app.get("db"))
+            .then( ads => {
+                return res.status(200).json({
+                    ads
+                });
+            });
+    })
+
+LivingSpaceRouter
     .route("/living-space/:id")
     .all(requireAuth)
     .get((req, res) => {
 
-    })
-    .post((req, res) => {
-        console.log(req.user)
-
-        return res.status(200).json({
-            user: req.user
-        })
     })
     .patch((req, res) => {
         console.log(req.user)

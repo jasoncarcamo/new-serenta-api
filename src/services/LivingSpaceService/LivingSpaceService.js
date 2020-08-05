@@ -3,7 +3,10 @@ const SpaceService = {
 
         return db.select("*").from("living_space").where({id}).first();
     },
-    getSpaces(db){
+    getAllUserSpaces(db, id){
+        return db.select("*").from("living_space").where({user_id: id});
+    },
+    getAllSpaces(db){
 
         return db.select("*").from("living_space");
     },
