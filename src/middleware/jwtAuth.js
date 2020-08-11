@@ -13,10 +13,6 @@ function requireAuth( req, res, next){
 
     try{
         const payload = JWT.verifyToken(bearerToken);
-
-        console.log(payload, "hello")
-
-    console.log(payload.sub)
         
         UserService.getUser( req.app.get("db"), payload.sub)
             .then( user => {

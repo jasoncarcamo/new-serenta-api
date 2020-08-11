@@ -58,7 +58,8 @@ LivingSpaceRouter
             parking,
             washer,
             dryer,
-            comments
+            comments,
+            posted: false
         };
 
         console.log(newAd)
@@ -102,10 +103,96 @@ LivingSpaceRouter
 
     })
     .patch((req, res) => {
-        console.log(req.user)
+        const{
+            street_address,
+            apt_num,
+            city,
+            state,
+            country,
+            zip_code,
+            type,
+            price,
+            deposit,
+            bedrooms,
+            bathrooms,
+            squareft,
+            ac,
+            wifi,
+            cable,
+            pets,
+            parking,
+            washer,
+            dryer,
+            comments,
+            posted
+        } = req.body;
+
+        const updateAd = {
+            street_address,
+            apt_num,
+            city,
+            state,
+            country,
+            zip_code,
+            type,
+            price,
+            deposit,
+            bedrooms,
+            bathrooms,
+            squareft,
+            ac,
+            wifi,
+            cable,
+            pets,
+            parking,
+            washer,
+            dryer,
+            comments,
+            posted
+        };
+
+        for(const [key, value] of Object.entries(updateAd)){
+            if(value === undefined || value === null){
+                return res.status(400).json({
+                    error: `Missing ${key} in body request.`
+                });
+            };
+        };
+
+        LivingSpaceService.getSpaceById(req.app.get("db"), req.params.id)
+            .then( ad => {
+                if(!ad){
+                    return res.status(404).json({
+                        error: "Living space ad was not found."
+                    });
+                };
+
+                LivingSpaceService.updateSpace(req.app.get('db'), updateAd, req.params.id)
+                    .then( updatedAd => {
+                        return res.status(200).json({
+                            updatedAd
+                        });
+                    });
+            });
     })
     .delete((req, res) => {
+        LivingSpaceService.getSpaceById(req.app.get("db"), req.params.id)
+            .then( ad => {
+                console.log(ad)
+                if(!ad){
+                    return res.status(404).json({
+                        error: "Ad was not found."
+                    });
+                };
 
+                LivingSpaceService.deleteSpace(req.app.get("db"), req.params.id)
+                    .then( deletedAd => {
+
+                        return res.status(200).json({
+                            deletedAd: ad
+                        });
+                })
+            })
     });
 
 module.exports = LivingSpaceRouter;
