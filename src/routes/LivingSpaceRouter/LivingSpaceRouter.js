@@ -35,7 +35,9 @@ LivingSpaceRouter
             parking,
             washer,
             dryer,
-            comments
+            comments,
+            lat,
+            lng
         } = req.body;
 
         const newAd = {
@@ -59,6 +61,8 @@ LivingSpaceRouter
             washer,
             dryer,
             comments,
+            lat,
+            lng,
             posted: false
         };
 
@@ -124,6 +128,8 @@ LivingSpaceRouter
             washer,
             dryer,
             comments,
+            lat,
+            lng,
             posted
         } = req.body;
 
@@ -148,6 +154,8 @@ LivingSpaceRouter
             washer,
             dryer,
             comments,
+            lat,
+            lng,
             posted
         };
 
