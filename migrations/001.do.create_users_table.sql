@@ -5,5 +5,8 @@ CREATE TABLE users (
     email TEXT NOT NULL,
     mobile_number TEXT NOT NULL,
     password TEXT NOT NULL,
-    date_joined TIMESTAMP DEFAULT now() NOT NULL
+    date_joined TIMESTAMP DEFAULT now() NOT NULL,
+    date_created TIMESTAMP DEFAULT now() NOT NULL,
+    date_last_modified TIMESTAMP
 );
+

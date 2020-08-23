@@ -63,6 +63,7 @@ LivingSpaceRouter
             comments,
             lat,
             lng,
+            date_created: new Date(),
             posted: false
         };
 
@@ -156,7 +157,8 @@ LivingSpaceRouter
             comments,
             lat,
             lng,
-            posted
+            posted,
+            date_last_modified: new Date()
         };
 
         for(const [key, value] of Object.entries(updateAd)){

@@ -23,5 +23,7 @@ CREATE TABLE living_space (
     posted BOOLEAN DEFAULT FALSE NOT NULL,
     lat DECIMAL,
     lng DECIMAL,
+    date_created TIMESTAMP DEFAULT now() NOT NULL,
+    date_last_modified TIMESTAMP,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL
 );

@@ -20,7 +20,8 @@ RegisterRouter
             last_name,
             email,
             password,
-            mobile_number
+            mobile_number,
+            date_created: new Date()
         };
 
         console.log(newUser)
