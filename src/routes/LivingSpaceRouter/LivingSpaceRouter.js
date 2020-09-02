@@ -37,7 +37,9 @@ LivingSpaceRouter
             dryer,
             comments,
             lat,
-            lng
+            lng,
+            email,
+            mobile_number
         } = req.body;
 
         const newAd = {
@@ -64,10 +66,10 @@ LivingSpaceRouter
             lat,
             lng,
             date_created: new Date(),
-            posted: false
+            posted: false,
+            email: email || req.user.email,
+            mobile_number: mobile_number || req.user.mobile_number
         };
-
-        console.log(newAd)
         
         // checks to make sure keys are provided on body request
         for(const [key, value] of Object.entries(newAd)){
@@ -131,7 +133,9 @@ LivingSpaceRouter
             comments,
             lat,
             lng,
-            posted
+            posted,
+            email,
+            mobile_number
         } = req.body;
 
         const updateAd = {
@@ -158,7 +162,9 @@ LivingSpaceRouter
             lat,
             lng,
             posted,
-            date_last_modified: new Date()
+            date_last_modified: new Date(),
+            email,
+            mobile_number
         };
 
         for(const [key, value] of Object.entries(updateAd)){
