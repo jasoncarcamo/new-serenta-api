@@ -194,7 +194,7 @@ LivingSpaceRouter
     .delete((req, res) => {
         LivingSpaceService.getSpaceById(req.app.get("db"), req.params.id)
             .then( ad => {
-                console.log(ad)
+                
                 if(!ad){
                     return res.status(404).json({
                         error: "Ad was not found."

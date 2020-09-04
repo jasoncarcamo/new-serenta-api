@@ -29,7 +29,7 @@ LoginRouter
         UserService.getUser(req.app.get("db"), user.email)
             .then( dbUser => {
                 if(!dbUser){
-                    console.log(dbUser)
+                    
                     return res.status(400).json({
                         error: `${user.email} is not registered.`
                     });
@@ -48,10 +48,6 @@ LoginRouter
                         const payload = {
                             user: dbUser.email
                         };
-
-                        console.log(dbUser)
-
-                        console.log(payload)
 
                         return res.status(200).json({
                             token: JWT.createJwt(subject, payload)

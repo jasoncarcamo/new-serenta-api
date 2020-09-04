@@ -24,8 +24,6 @@ RegisterRouter
             date_created: new Date()
         };
 
-        console.log(newUser)
-
         for(const [key, value] of Object.entries(newUser)){
             if(value === undefined){
 
@@ -50,7 +48,6 @@ RegisterRouter
 
                         UserService.createUser(req.app.get("db"), newUser)
                             .then( createdUser => {
-                                console.log(createdUser)
                                 const subject = createdUser.email;
                                 const payload = {
                                     user: createdUser.email
