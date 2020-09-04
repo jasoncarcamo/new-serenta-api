@@ -8,11 +8,13 @@ const {NODE_ENV} = require("../../config");
 const RegisterRouter = require("../routes/RegisterRouter/RegisterRouter");
 const LoginRouter = require("../routes/LoginRouter/LoginRouter");
 const LivingSpaceRouter = require("../routes/LivingSpaceRouter/LivingSpaceRouter");
+const LivingSpaceImagesRouter = require("../routes/LivingSpaceImagesRouter/LivingSpaceImagesRouter");
 const UserRouter = require("../routes/UserRouter/UserRouter");
 
 app.use(morgan((NODE_ENV === "production") ? "tiny" : "common"));
 app.use(express.static("public"));
 app.use(cors());
+app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(helmet());
 
@@ -20,6 +22,7 @@ app.use(helmet());
 app.use("/api", RegisterRouter);
 app.use("/api", LoginRouter);
 app.use("/api", LivingSpaceRouter);
+app.use("/api", LivingSpaceImagesRouter);
 app.use("/api", UserRouter);
 
 app.use(function errorHandler(error, req, res, next) {
