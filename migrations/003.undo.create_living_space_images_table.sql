@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS living_space_images;
