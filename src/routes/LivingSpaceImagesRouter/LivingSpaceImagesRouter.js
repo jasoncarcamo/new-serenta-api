@@ -78,7 +78,8 @@ LivingSpaceImagesRouter
                 params = {
                     Bucket: BUCKET_NAME,
                     Key: images[0].originalname,
-                    Body: fileContent
+                    Body: fileContent,
+                    ACL: "public-read"
                 };
 
                 s3.upload(params, (err, data)=>{
@@ -102,7 +103,7 @@ LivingSpaceImagesRouter
                             fs.unlinkSync(images[0].path);
 
                             return res.status(200).json({
-                                success: `Image ${fileName} saved`
+                                images: currentLivingSpace.images
                             });
                         });
                 });
