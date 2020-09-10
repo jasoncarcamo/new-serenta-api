@@ -16,7 +16,7 @@ const SpaceService = {
     },
     updateSpace(db, updatedSpace, id){
 
-        return db.update(updatedSpace).from("living_space").where({id});
+        return db.update(updatedSpace).from("living_space").where({id}).returning("*").then(([space]) => space);
     },
     deleteSpace(db, id){
 
