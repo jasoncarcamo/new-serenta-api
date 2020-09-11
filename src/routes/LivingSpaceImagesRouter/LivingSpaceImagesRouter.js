@@ -15,7 +15,8 @@ LivingSpaceImagesRouter
     })
     .post(requireAuth, upload.array("images", Infinity), (req, res)=>{
         const {
-            living_space_id
+            living_space_id,
+            image_name
         } = req.body;
         const newImage = {
             living_space_id
@@ -26,8 +27,9 @@ LivingSpaceImagesRouter
             secretAccessKey: SECRET_ACCESS_KEY
         });
         let params;
+        console.log(images, req.body);
         const fileContent = fs.readFileSync(images[0].path);
-        const fileName = images[0].originalname;
+        const fileName = image_name;
 
         if(images.length === 0 || !images){
 
@@ -71,7 +73,7 @@ LivingSpaceImagesRouter
 
                 params = {
                     Bucket: BUCKET_NAME,
-                    Key: `${living_space_id}${images[0].originalname}`,
+                    Key: `${living_space_id}${fileName}`,
                     Body: fileContent,
                     ACL: "public-read"
                 };
