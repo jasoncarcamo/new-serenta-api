@@ -158,6 +158,7 @@ LivingSpaceImagesRouter
                         });
                     };
 
+                    // update living space ad to contain the edited images
                     LivingSpaceService.updateSpace(req.app.get("db"), currentLivingSpace, req.params.living_space_id)
                     .then( updatedSpace => {
                         
