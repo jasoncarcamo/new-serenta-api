@@ -7,6 +7,18 @@ const fs = require("fs");
 const multer = require("multer");
 const LivingSpaceService = require("../../services/LivingSpaceService/LivingSpaceService");
 let upload = multer({ dest: "upload/" });
+const S3ImageService = require("../../services/S3ImageService/S3ImageService");
+
+LivingSpaceImagesRouter
+    .route("/living-space-images/user")
+    .get(requireAuth, (req, res)=>{
+        S3ImageService.getUserImages(req.app.get("db"), req.user.id)
+            .then( userImages => {
+                return res.status(200).json({
+                    userImages
+                });
+            });
+    });
 
 LivingSpaceImagesRouter
     .route("/living-space-images")
@@ -19,6 +31,8 @@ LivingSpaceImagesRouter
             image_name
         } = req.body;
         const newImage = {
+            image_name,
+            user_id: req.user.id,
             living_space_id
         };
         const images = req.files;
@@ -27,7 +41,6 @@ LivingSpaceImagesRouter
             secretAccessKey: SECRET_ACCESS_KEY
         });
         let params;
-        console.log(images, req.body);
         const fileContent = fs.readFileSync(images[0].path);
         const fileName = image_name;
 
@@ -50,68 +63,64 @@ LivingSpaceImagesRouter
                 if(!currentLivingSpace){
 
                     fs.unlinkSync(images[0].path);
-
+                    console.log("Living space not found")
                     return res.status(404).json({
                         error: "Living space ad not found."
                     });
                 };
 
-                if(!livingSpaceImages){
-                    livingSpaceImages = [];
-                };
+                S3ImageService.getAdByName(req.app.get("db"), image_name, living_space_id)
+                    .then( adImage => {
+                        if(adImage){
 
-                for(let i = 0; i < livingSpaceImages.length; i++){
-                    if(livingSpaceImages[i].split(".com/")[1] === fileName){
-
-                        fs.unlinkSync(images[0].path);
-
-                        return res.status(400).json({
-                            error: `Living space ad already has a file named ${fileName}`
-                        });
-                    };
-                };
-
-                params = {
-                    Bucket: BUCKET_NAME,
-                    Key: `${living_space_id}${fileName}`,
-                    Body: fileContent,
-                    ACL: "public-read"
-                };
-
-
-                s3.upload(params, (err, data)=>{
-                    if(err){
-
-                        fs.unlinkSync(images[0].path);
-
-                        return res.status(400).json({
-                            error: err
-                        });
-                    };
-
-                    livingSpaceImages.push(data.Location);
-
-                    currentLivingSpace.images = livingSpaceImages;
-
-                    LivingSpaceService.updateSpace(req.app.get("db"), currentLivingSpace, newImage.living_space_id)
-                        .then( updatedLivingSpace => {
-
-                            // delete uploaded file from storage disk
                             fs.unlinkSync(images[0].path);
 
-                            return res.status(200).json({
-                                images: currentLivingSpace.images
+                            return res.status(400).json({
+                                error: `Living space ad already has a file named ${image_name}`
                             });
+                        };
+
+                        params = {
+                            Bucket: BUCKET_NAME,
+                            Key: `${living_space_id}${fileName}`,
+                            Body: fileContent,
+                            ACL: "public-read"
+                        };
+
+                        s3.upload(params, (err, data)=>{
+                            if(err){
+        
+                                fs.unlinkSync(images[0].path);
+        
+                                return res.status(400).json({
+                                    error: err
+                                });
+                            };
+
+                            newImage.url = data.Location;
+
+                            S3ImageService.createImage(req.app.get("db"), newImage)
+                                .then( createdImage => {
+                                    console.log("Line 104:", createdImage)
+                                    fs.unlinkSync(images[0].path);
+
+                                    return res.status(200).json({
+                                        createdImage
+                                    });
+                                });
                         });
                 });
             });
-    })
+    });
 
 LivingSpaceImagesRouter
-    .route("/living-space-images/:living_space_id")
-    .delete(requireAuth, upload.array("images", Infinity), (req, res)=>{
+    .route("/living-space-images/:id")
+    .get((req, res)=>{
+
+    })
+    .delete(requireAuth, upload.array("images", 12), (req, res)=>{
         const {
-            image
+            image_name
         } = req.body;
         const s3 = new AWS.S3({
             accessKeyId: ACCESS_KEY_ID,
@@ -119,36 +128,20 @@ LivingSpaceImagesRouter
         });
         let params;
 
-        LivingSpaceService.getSpaceById(req.app.get("db"), req.params.living_space_id)
-            .then( livingSpace => {
-                const currentLivingSpace = livingSpace;
-                let livingSpaceImages = currentLivingSpace.images;
+        S3ImageService.getById(req.app.get("db"), req.params.id)
+            .then( dbImage => {
 
-                if(!currentLivingSpace){
-
+                console.log("line 131:", dbImage)
+                if(!dbImage){
                     return res.status(404).json({
-                        error: "Living space ad not found."
+                        error: `File ${image_name} not found.`
                     });
-                };
-
-                if(!livingSpaceImages.includes(image)){
-                    return res.status(404).json({
-                        error: `Living space ad does not have a file named ${image}`
-                    });
-                }
-
-                for(let i = 0; i < livingSpaceImages.length; i++){
-                    if(livingSpaceImages[i] === image){
-                        livingSpaceImages.splice(i, 1);
-                    };
                 };
 
                 params = {
                     Bucket: BUCKET_NAME,
-                    Key: image.split(".com/")[1],
+                    Key: dbImage.url.split(".com/")[1],
                 };
-
-                currentLivingSpace.images = livingSpaceImages;
 
                 s3.deleteObject(params, (err, data)=>{
                     if(err){
@@ -158,17 +151,14 @@ LivingSpaceImagesRouter
                         });
                     };
 
-                    // update living space ad to contain the edited images
-                    LivingSpaceService.updateSpace(req.app.get("db"), currentLivingSpace, req.params.living_space_id)
-                    .then( updatedSpace => {
-                        
-                        return res.status(200).json({
-                            success: `Deleted ${image}`,
-                            updatedSpace
-                         });
-                    });
+                    S3ImageService.deleteImage(req.app.get("db"), req.params.id)
+                        .then( deletedImage => {
+                            return res.status(200).json({
+                                deletedImage
+                            });
+                        });
                 });
             });
-    })
+    });
 
 module.exports = LivingSpaceImagesRouter;
