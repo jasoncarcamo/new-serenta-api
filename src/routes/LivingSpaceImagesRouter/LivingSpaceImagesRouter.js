@@ -8,6 +8,7 @@ const multer = require("multer");
 const LivingSpaceService = require("../../services/LivingSpaceService/LivingSpaceService");
 let upload = multer({ dest: "upload/" });
 const S3ImageService = require("../../services/S3ImageService/S3ImageService");
+const { updateSpace } = require("../../services/LivingSpaceService/LivingSpaceService");
 
 LivingSpaceImagesRouter
     .route("/living-space-images/user")
@@ -63,7 +64,7 @@ LivingSpaceImagesRouter
                 if(!currentLivingSpace){
 
                     fs.unlinkSync(images[0].path);
-                    console.log("Living space not found")
+
                     return res.status(404).json({
                         error: "Living space ad not found."
                     });
@@ -101,7 +102,7 @@ LivingSpaceImagesRouter
 
                             S3ImageService.createImage(req.app.get("db"), newImage)
                                 .then( createdImage => {
-                                    console.log("Line 104:", createdImage)
+                                    
                                     fs.unlinkSync(images[0].path);
 
                                     return res.status(200).json({
@@ -127,11 +128,11 @@ LivingSpaceImagesRouter
             secretAccessKey: SECRET_ACCESS_KEY
         });
         let params;
+        let updateSpace;
 
         S3ImageService.getById(req.app.get("db"), req.params.id)
             .then( dbImage => {
 
-                console.log("line 131:", dbImage)
                 if(!dbImage){
                     return res.status(404).json({
                         error: `File ${image_name} not found.`
@@ -153,9 +154,24 @@ LivingSpaceImagesRouter
 
                     S3ImageService.deleteImage(req.app.get("db"), req.params.id)
                         .then( deletedImage => {
-                            return res.status(200).json({
-                                deletedImage
-                            });
+
+                            LivingSpaceService.getSpaceById(req.app.get("db"), deletedImage.living_space_id)
+                                .then( currentLivingSpace => {
+                                    let updateCurrentSpace = currentLivingSpace;
+                                    let deletedImageIndex = updateCurrentSpace.images.indexOf(JSON.stringify(deletedImage));
+                                    
+                                    if(deletedImageIndex > -1){
+                                        updateCurrentSpace.images.splice(deletedImageIndex, 1);
+                                    };
+
+                                    LivingSpaceService.updateSpace(req.app.get("db"), updateCurrentSpace, updateCurrentSpace.id)
+                                        .then( updatedSpaceAd => {
+                                            return res.status(200).json({
+                                                deletedImage,
+                                                updatedSpaceAd
+                                            });
+                                        });
+                                });
                         });
                 });
             });

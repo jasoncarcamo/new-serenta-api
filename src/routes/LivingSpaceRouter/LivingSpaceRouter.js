@@ -1,6 +1,7 @@
 const express = require("express");
 const LivingSpaceRouter = express.Router();
 const LivingSpaceService = require("../../services/LivingSpaceService/LivingSpaceService");
+const S3ImageService = require("../../services/S3ImageService/S3ImageService");
 const {requireAuth} = require("../../middleware/jwtAuth");
 
 LivingSpaceRouter
@@ -9,6 +10,7 @@ LivingSpaceRouter
     .get((req, res) => {
         LivingSpaceService.getAllUserSpaces(req.app.get("db"), req.user.id)
             .then( userAds => {
+
                 return res.status(200).json({
                     userAds
                 });
@@ -97,6 +99,7 @@ LivingSpaceRouter
     .get((req, res)=>{
         LivingSpaceService.getAllSpaces(req.app.get("db"))
             .then( ads => {
+
                 return res.status(200).json({
                     ads
                 });
@@ -135,7 +138,8 @@ LivingSpaceRouter
             lng,
             posted,
             email,
-            mobile_number
+            mobile_number,
+            images
         } = req.body;
 
         const updateAd = {
@@ -164,8 +168,11 @@ LivingSpaceRouter
             posted,
             date_last_modified: new Date(),
             email,
-            mobile_number
+            mobile_number,
+            images
         };
+
+        console.log(updateAd);
 
         for(const [key, value] of Object.entries(updateAd)){
             if(value === undefined || value === null){

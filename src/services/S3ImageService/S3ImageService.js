@@ -2,6 +2,9 @@ const S3ImageService = {
     getUserImages(db, user_id){
         return db.select("*").from("images").where({user_id});
     },
+    getLivingSpaceImages(db, livingSpace_id){
+        return db.select("*").from("living_space").join("images", {"images.living_space_id": "living_space.id"});
+    },
     getById(db, id){
         return db.select("*").from("images").where({id}).first();
     },
