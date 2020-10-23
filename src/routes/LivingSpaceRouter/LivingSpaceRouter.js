@@ -91,7 +91,6 @@ LivingSpaceRouter
                     createdAd
                 });
             });
-
     })
 
 LivingSpaceRouter
